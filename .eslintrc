@@ -17,6 +17,7 @@
 	"rules": {
 		"no-constant-condition": "off",
 		"no-inner-declarations": "off",
-		"prefer-const": "off"
+		"prefer-const": "off",
+		"no-empty": "off"
 	}
 }
