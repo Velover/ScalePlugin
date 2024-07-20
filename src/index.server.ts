@@ -135,6 +135,29 @@ function ObjectToPixels(object: Instance) {
 
 		object.CellPadding = UDim2.fromOffset(padding.X, padding.Y);
 		object.CellSize = UDim2.fromOffset(cell_size.X, cell_size.Y);
+	} else if (object.IsA("UITableLayout")) {
+		const padding_offset = new Vector2(
+			object.Padding.X.Offset,
+			object.Padding.Y.Offset,
+		);
+		const padding_scale = new Vector2(
+			object.Padding.X.Scale,
+			object.Padding.Y.Scale,
+		);
+
+		const padding = padding_scale.mul(parent_absolute_size).add(padding_offset);
+
+		object.Padding = UDim2.fromOffset(padding.X, padding.Y);
+	} else if (object.IsA("UIPageLayout")) {
+		const main_size =
+			object.FillDirection === Enum.FillDirection.Horizontal
+				? parent_absolute_size.X
+				: parent_absolute_size.Y;
+
+		object.Padding = new UDim(
+			0,
+			object.Padding.Scale * main_size + object.Padding.Offset,
+		);
 	}
 }
 
@@ -175,8 +198,8 @@ function ObjectToScale(object: Instance) {
 
 	let parent_absolute_size = parent.AbsoluteSize.sub(offset);
 	parent_absolute_size = new Vector2(
-		math.max(parent_absolute_size.X, 1),
-		math.max(parent_absolute_size.Y, 1),
+		parent_absolute_size.X === 0 ? 1 : parent_absolute_size.X,
+		parent_absolute_size.Y === 0 ? 1 : parent_absolute_size.Y,
 	);
 
 	if (object.IsA("GuiObject")) {
@@ -221,5 +244,28 @@ function ObjectToScale(object: Instance) {
 
 		object.CellPadding = UDim2.fromScale(padding_ratio.X, padding_ratio.Y);
 		object.CellSize = UDim2.fromScale(cell_ratio.X, cell_ratio.Y);
+	} else if (object.IsA("UITableLayout")) {
+		const padding_offset = new Vector2(
+			object.Padding.X.Offset,
+			object.Padding.Y.Offset,
+		);
+		const padding_scale = new Vector2(
+			object.Padding.X.Scale,
+			object.Padding.Y.Scale,
+		);
+
+		const padding = padding_scale.add(padding_offset.div(parent_absolute_size));
+
+		object.Padding = UDim2.fromScale(padding.X, padding.Y);
+	} else if (object.IsA("UIPageLayout")) {
+		const main_size =
+			object.FillDirection === Enum.FillDirection.Horizontal
+				? parent_absolute_size.X
+				: parent_absolute_size.Y;
+
+		object.Padding = new UDim(
+			object.Padding.Scale + object.Padding.Offset / main_size,
+			0,
+		);
 	}
 }
